@@ -3,7 +3,7 @@ import { CompressorPage } from "./pages/CompressorPage";
 import { HomePage } from "./pages/HomePage";
 
 export default function App() {
-  const path = window.location.pathname.replace("/img-skills", "") || "/";
+  const path = window.location.pathname.replace("/imgskills", "") || "/";
 
   return (
     <div className="min-h-screen bg-stone-50 text-slate-950">

@@ -23,9 +23,9 @@
     <div id="root"></div>
     <script>
       (function () {
-        var redirectPath = sessionStorage.getItem("img-skills-redirect");
+        var redirectPath = sessionStorage.getItem("imgskills-redirect");
         if (redirectPath) {
-          sessionStorage.removeItem("img-skills-redirect");
+          sessionStorage.removeItem("imgskills-redirect");
           history.replaceState(null, "", redirectPath);
         }
       })();

@@ -10,7 +10,7 @@ export function ToolCard({ tool }: ToolCardProps) {
 
   return (
     <a
-      href={isAvailable ? `/img-skills${tool.path}` : "#tools"}
+      href={isAvailable ? `/imgskills${tool.path}` : "#tools"}
       className="group flex min-h-40 flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-soft"
       aria-disabled={!isAvailable}
     >
