@@ -20,9 +20,11 @@ export function ToolCard({ tool }: ToolCardProps) {
         <span className="flex size-11 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/10 transition group-hover:bg-cyan-300 group-hover:text-slate-950">
           <Icon className="size-5" aria-hidden="true" />
         </span>
-        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
-          {isAvailable ? t("live") : t("soon")}
-        </span>
+        {!isAvailable && (
+          <span className="rounded-full border border-amber-400/20 bg-amber-400/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-200">
+            {t("soon")}
+          </span>
+        )}
       </div>
       <div>
         <h3 className="mt-5 text-base font-semibold text-white">{t(tool.nameKey)}</h3>
