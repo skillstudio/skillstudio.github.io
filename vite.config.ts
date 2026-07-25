@@ -1,6 +1,31 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { networkInterfaces } from "node:os";
+import { copyFileSync, mkdirSync } from "node:fs";
+import { resolve } from "node:path";
+
+const toolRoutes = [
+  "compress",
+  "pdf-to-image",
+  "image-resize",
+  "image-converter",
+  "image-crop",
+  "image-watermark",
+];
+
+function githubPagesRoutes() {
+  return {
+    name: "github-pages-routes",
+    closeBundle() {
+      const output = resolve("dist");
+      for (const route of toolRoutes) {
+        const directory = resolve(output, route);
+        mkdirSync(directory, { recursive: true });
+        copyFileSync(resolve(output, "index.html"), resolve(directory, "index.html"));
+      }
+    },
+  };
+}
 
 function getLanAddress(): string {
   const addresses = Object.values(networkInterfaces())
@@ -22,5 +47,5 @@ export default defineConfig({
   define: {
     __DEV_LAN_HOST__: JSON.stringify(getLanAddress()),
   },
-  plugins: [react()],
+  plugins: [react(), githubPagesRoutes()],
 });
