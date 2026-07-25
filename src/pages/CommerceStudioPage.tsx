@@ -8,7 +8,7 @@ import { commercePresets, defaultCommercePresetIds } from "../data/commercePrese
 import { useLanguage } from "../i18n/LanguageContext";
 import type {
   BrandKit, CommerceAsset, CommerceCompressionSettings, CommerceProgress, DeliverySummary,
-  LogoPosition, MarketplaceId, ProductGroup, ProductPhoto, SubjectExtractionMode,
+  LogoPosition, MarketplaceId, ProductGroup, ProductPhoto, QualityWarning, SubjectExtractionMode,
 } from "../types/commerce";
 import {
   analyzePhoto, packageCommerceProject, processCommerceProject, safeName, suggestedGroupName,
@@ -433,7 +433,7 @@ export function CommerceStudioPage() {
               <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {assets.map((asset) => (
                   <article key={asset.id} className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/55">
-                    <div className="relative aspect-square bg-[linear-gradient(45deg,#111827_25%,transparent_25%),linear-gradient(-45deg,#111827_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#111827_75%),linear-gradient(-45deg,transparent_75%,#111827_75%)] bg-[length:20px_20px]"><img className="size-full object-contain" src={asset.previewUrl} alt={asset.fileName} />{asset.warnings.length > 0 && <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-amber-300 px-2 py-1 text-[10px] font-bold text-slate-950"><AlertTriangle className="size-3" />{asset.warnings.length}</span>}</div>
+                    <div className="relative aspect-square bg-[linear-gradient(45deg,#111827_25%,transparent_25%),linear-gradient(-45deg,#111827_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#111827_75%),linear-gradient(-45deg,transparent_75%,#111827_75%)] bg-[length:20px_20px]"><img className="size-full object-contain" src={asset.previewUrl} alt={asset.fileName} />{asset.warnings.length > 0 && <WarningBadge warnings={asset.warnings} zh={zh} className="absolute left-2 top-2" />}</div>
                     <div className="p-3"><div className="flex items-center gap-3"><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-slate-200">{asset.fileName}</strong><span className="mt-1 block text-[11px] text-slate-500">{platformName(asset.marketplace)} · {asset.width} × {asset.height}</span></div><button type="button" onClick={() => downloadBlob(asset.blob, asset.fileName)} className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-slate-700 text-slate-300 hover:border-cyan-300/40 hover:text-cyan-200" aria-label={zh ? "下载" : "Download"}><Download className="size-4" /></button></div><div className="mt-2 flex flex-wrap gap-1.5 text-[9px] font-semibold"><span className="rounded-full bg-slate-800 px-2 py-1 text-slate-400">{asset.fileName.endsWith(".png") ? `${zh ? "输出" : "Output"} ${formatBytes(asset.blob.size)}` : `${zh ? "生成基准" : "Generated baseline"} ${formatBytes(asset.uncompressedSize)} → ${formatBytes(asset.blob.size)}`}</span><span className="rounded-full bg-slate-800 px-2 py-1 text-slate-400">{asset.outputQuality === 100 && asset.fileName.endsWith(".png") ? (zh ? "PNG 无损" : "Lossless PNG") : `${zh ? "质量" : "Quality"} ${asset.outputQuality}`}</span><span className={`rounded-full px-2 py-1 ${asset.logoStatus === "applied" ? "bg-cyan-300/10 text-cyan-200" : "bg-slate-800 text-slate-500"}`}>{logoStatusLabel(asset.logoStatus, zh)}</span></div></div>
                   </article>
                 ))}
@@ -467,9 +467,27 @@ function PanelTitle({ icon: Icon, title, body }: { icon: typeof ImagePlus; title
   return <div className="flex items-start gap-4"><span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-cyan-300/10 text-cyan-200"><Icon className="size-5" /></span><div><h2 className="text-xl font-semibold tracking-tight">{title}</h2><p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-400">{body}</p></div></div>;
 }
 
+function warningLabel(warning: QualityWarning, zh: boolean) {
+  const labels: Record<QualityWarning, [string, string]> = {
+    "low-resolution": ["图片分辨率较低", "Image resolution may be low"],
+    "soft-focus": ["图片清晰度可能不足", "Image may lack sharpness"],
+    "underexposed": ["图片可能偏暗", "Image may be underexposed"],
+    "overexposed": ["图片可能偏亮", "Image may be overexposed"],
+    "subject-review": ["商品主体处理结果建议复核", "Review the product subject result"],
+  };
+  return labels[warning][zh ? 0 : 1];
+}
+
+function WarningBadge({ warnings, zh, className = "" }: { warnings: QualityWarning[]; zh: boolean; className?: string }) {
+  const uniqueWarnings = [...new Set(warnings)];
+  const detail = uniqueWarnings.map((warning) => warningLabel(warning, zh)).join(zh ? "；" : "; ");
+  const title = `${zh ? "建议复核" : "Review recommended"}：${detail}`;
+  return <span title={title} aria-label={title} className={`${className} inline-flex items-center gap-1 rounded-full bg-amber-300 px-2 py-1 text-[9px] font-bold text-slate-950`}><AlertTriangle className="size-3" />{uniqueWarnings.length}</span>;
+}
+
 function PhotoGrid({ photos, selected, onSelect, onRemove, zh, compact = false }: { photos: ProductPhoto[]; selected: string[]; onSelect: (id: string) => void; onRemove: (id: string) => void; zh: boolean; compact?: boolean }) {
   if (!photos.length) return null;
-  return <div className={`mt-5 grid gap-3 ${compact ? "grid-cols-3 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4"}`}>{photos.map((photo) => { const active = selected.includes(photo.id); return <article key={photo.id} className={`group relative overflow-hidden rounded-xl border bg-slate-950 ${active ? "border-cyan-300 ring-2 ring-cyan-300/20" : "border-slate-700"}`}><button type="button" onClick={() => onSelect(photo.id)} className="block w-full text-left"><div className="relative aspect-square"><img className="size-full object-cover" src={photo.previewUrl} alt={photo.file.name} /><span className={`absolute left-2 top-2 flex size-5 items-center justify-center rounded-md border ${active ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-white/30 bg-slate-950/60"}`}>{active && <Check className="size-3.5" />}</span>{photo.quality && photo.quality.warnings.length > 0 && <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-amber-300 px-2 py-1 text-[9px] font-bold text-slate-950"><AlertTriangle className="size-3" />{photo.quality.warnings.length}</span>}</div>{!compact && <div className="p-2.5"><strong className="block truncate text-xs text-slate-200">{photo.file.name}</strong><span className="mt-1 block text-[10px] text-slate-500">{photo.quality ? `${photo.quality.width} × ${photo.quality.height}` : (zh ? "分析中…" : "Analyzing…")}</span></div>}</button><button type="button" onClick={() => onRemove(photo.id)} className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-lg bg-slate-950/75 text-slate-400 opacity-0 backdrop-blur group-hover:opacity-100 hover:text-rose-300" aria-label={zh ? "移除" : "Remove"}><Trash2 className="size-3.5" /></button></article>; })}</div>;
+  return <div className={`mt-5 grid gap-3 ${compact ? "grid-cols-3 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4"}`}>{photos.map((photo) => { const active = selected.includes(photo.id); return <article key={photo.id} className={`group relative overflow-hidden rounded-xl border bg-slate-950 ${active ? "border-cyan-300 ring-2 ring-cyan-300/20" : "border-slate-700"}`}><button type="button" onClick={() => onSelect(photo.id)} className="block w-full text-left"><div className="relative aspect-square"><img className="size-full object-cover" src={photo.previewUrl} alt={photo.file.name} /><span className={`absolute left-2 top-2 flex size-5 items-center justify-center rounded-md border ${active ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-white/30 bg-slate-950/60"}`}>{active && <Check className="size-3.5" />}</span>{photo.quality && photo.quality.warnings.length > 0 && <WarningBadge warnings={photo.quality.warnings} zh={zh} className="absolute bottom-2 left-2" />}</div>{!compact && <div className="p-2.5"><strong className="block truncate text-xs text-slate-200">{photo.file.name}</strong><span className="mt-1 block text-[10px] text-slate-500">{photo.quality ? `${photo.quality.width} × ${photo.quality.height}` : (zh ? "分析中…" : "Analyzing…")}</span></div>}</button><button type="button" onClick={() => onRemove(photo.id)} className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-lg bg-slate-950/75 text-slate-400 opacity-0 backdrop-blur group-hover:opacity-100 hover:text-rose-300" aria-label={zh ? "移除" : "Remove"}><Trash2 className="size-3.5" /></button></article>; })}</div>;
 }
 
 function StepActions({ back, onBack, onNext, nextDisabled, nextLabel, zh }: { back?: boolean; onBack?: () => void; onNext: () => void; nextDisabled?: boolean; nextLabel?: string; zh: boolean }) {
