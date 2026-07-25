@@ -3,7 +3,7 @@ export type Language = "en" | "zh";
 export const translations = {
   en: {
     navTools: "Tools", navCompress: "Compress", mobileAccess: "Mobile access",
-    scanTitle: "Scan to open on mobile", scanBody: "Scan with your phone camera to open ImgSkills.",
+    scanTitle: "Open on mobile", scanBody: "Scan with your phone camera to open ImgSkills.",
     localFirst: "Local-first image processing", heroTitle: "Professional image tools. Private by design.",
     heroLead: "Production-ready image workflows that run entirely in your browser.",
     heroBody: "Compress, convert, resize, crop, watermark, and export PDFs without sending files to a server.",
@@ -24,7 +24,7 @@ export const translations = {
   },
   zh: {
     navTools: "工具", navCompress: "压缩", mobileAccess: "手机访问",
-    scanTitle: "手机扫码访问", scanBody: "使用手机相机扫描二维码，立即打开 ImgSkills。",
+    scanTitle: "手机访问", scanBody: "使用手机相机扫描二维码，立即打开 ImgSkills。",
     localFirst: "本地优先图像处理", heroTitle: "专业图像工具，隐私优先设计。",
     heroLead: "完全在浏览器中运行的生产级图像工作流。",
     heroBody: "压缩、转换、缩放、裁剪、水印及 PDF 导出，全程无需上传文件。",
