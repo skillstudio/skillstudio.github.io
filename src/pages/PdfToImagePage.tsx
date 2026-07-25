@@ -6,7 +6,7 @@ import { ToolLayout } from "../components/ToolLayout";
 import { useLanguage } from "../i18n/LanguageContext";
 import type { ExportOptions, ProcessedAsset } from "../types/media";
 import { downloadAssetsZip, downloadBlob } from "../utils/download";
-import { pdfPageCount, renderPdfPages } from "../utils/pdf";
+import { composePdfPages, pdfPageCount, renderPdfPages, type PdfOutputMode } from "../utils/pdf";
 import { parsePageRange } from "../utils/pageRange";
 
 export function PdfToImagePage() {
@@ -16,6 +16,8 @@ export function PdfToImagePage() {
   const [pageCount, setPageCount] = useState(0);
   const [range, setRange] = useState("");
   const [scale, setScale] = useState(2);
+  const [outputMode, setOutputMode] = useState<PdfOutputMode>("pages");
+  const [gridColumns, setGridColumns] = useState(2);
   const [options, setOptions] = useState<ExportOptions>({ format: "image/png", quality: 90, backgroundColor: "#ffffff" });
   const [results, setResults] = useState<ProcessedAsset[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -48,8 +50,16 @@ export function PdfToImagePage() {
     controllerRef.current = controller;
     try {
       const pages = parsePageRange(range, pageCount);
-      setProgress({ done: 0, total: pages.length });
-      setResults(await renderPdfPages(file, pages, scale, options, (done, total) => setProgress({ done, total }), controller.signal));
+      const total = pages.length + (outputMode === "pages" ? 0 : 1);
+      setProgress({ done: 0, total });
+      const pageAssets = await renderPdfPages(file, pages, scale, options, (done) => setProgress({ done, total }), controller.signal);
+      if (outputMode === "pages") {
+        setResults(pageAssets);
+      } else {
+        const composite = await composePdfPages(pageAssets, file.name, outputMode, gridColumns, options, controller.signal);
+        setProgress({ done: total, total });
+        setResults([composite]);
+      }
     } catch (reason) {
       if (reason instanceof DOMException && reason.name === "AbortError") return;
       const message = reason instanceof Error ? reason.message : "";
@@ -70,6 +80,22 @@ export function PdfToImagePage() {
           <option value="1">1× · {zh ? "标准" : "Standard"}</option><option value="1.5">1.5× · {zh ? "清晰" : "Sharp"}</option><option value="2">2× · {zh ? "高清" : "High"}</option><option value="3">3× · {zh ? "超清" : "Ultra"}</option>
         </select>
       </label>
+      <label className="block text-sm font-medium">{zh ? "输出方式" : "Output layout"}
+        <select className="mt-2 w-full rounded-lg border p-2" value={outputMode} onChange={(e) => setOutputMode(e.target.value as PdfOutputMode)}>
+          <option value="pages">{zh ? "逐页图片" : "Separate pages"}</option>
+          <option value="long">{zh ? "合成一张纵向长图" : "One vertical long image"}</option>
+          <option value="grid">{zh ? "合成一张宫格图" : "One grid image"}</option>
+        </select>
+      </label>
+      {outputMode === "grid" && (
+        <label className="block text-sm font-medium">{zh ? "宫格列数" : "Grid columns"}
+          <select className="mt-2 w-full rounded-lg border p-2" value={gridColumns} onChange={(e) => setGridColumns(Number(e.target.value))}>
+            <option value="2">2 {zh ? "列" : "columns"}</option>
+            <option value="3">3 {zh ? "列" : "columns"}</option>
+            <option value="4">4 {zh ? "列" : "columns"}</option>
+          </select>
+        </label>
+      )}
       <ExportControls value={options} onChange={setOptions} formats={["image/png", "image/jpeg"]} />
       <button className="min-h-11 w-full rounded-lg bg-cyan-700 font-semibold text-white disabled:opacity-40" disabled={!file || processing || !pageCount} onClick={() => void process()}>
         {processing ? `${t("processing")} ${progress.done}/${progress.total}` : t("process")}
@@ -86,7 +112,7 @@ export function PdfToImagePage() {
       {results.length > 0 && (
         <div className="rounded-xl bg-white p-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">{results.length} {zh ? "页" : "pages"}</h2>
+            <h2 className="font-semibold">{outputMode === "pages" ? `${results.length} ${zh ? "页" : "pages"}` : (zh ? "合成结果" : "Combined result")}</h2>
             {results.length > 1 && <button className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-cyan-700 px-3 text-sm font-semibold text-white" onClick={() => void downloadAssetsZip(results, "imgskills-pdf-pages.zip")}><Package className="size-4" /> {t("downloadZip")}</button>}
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">

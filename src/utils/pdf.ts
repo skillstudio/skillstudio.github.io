@@ -2,8 +2,58 @@ import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import type { ExportOptions, ProcessedAsset } from "../types/media";
 import { canvasToBlob, createCanvas, extensionFor } from "./imageProcessing";
+import { calculateCompositeLayout, type PdfOutputMode } from "./pdfLayout";
+
+export type { PdfOutputMode } from "./pdfLayout";
 
 GlobalWorkerOptions.workerSrc = workerSrc;
+
+export async function composePdfPages(
+  assets: ProcessedAsset[],
+  sourceName: string,
+  mode: Exclude<PdfOutputMode, "pages">,
+  columns: number,
+  options: ExportOptions,
+  signal?: AbortSignal,
+): Promise<ProcessedAsset> {
+  signal?.throwIfAborted();
+  const layout = calculateCompositeLayout(assets, mode, columns);
+  const { canvas, context } = createCanvas(layout.width, layout.height);
+  if (options.format === "image/jpeg") {
+    context.fillStyle = options.backgroundColor || "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  const bitmaps = await Promise.all(assets.map((asset) => createImageBitmap(asset.blob)));
+  try {
+    let longY = 0;
+    bitmaps.forEach((bitmap, index) => {
+      signal?.throwIfAborted();
+      if (mode === "long") {
+        context.drawImage(bitmap, Math.floor((layout.width - bitmap.width) / 2), longY);
+        longY += bitmap.height;
+        return;
+      }
+      const column = index % layout.columns;
+      const row = Math.floor(index / layout.columns);
+      const x = column * layout.cellWidth + Math.floor((layout.cellWidth - bitmap.width) / 2);
+      const y = row * layout.cellHeight + Math.floor((layout.cellHeight - bitmap.height) / 2);
+      context.drawImage(bitmap, x, y);
+    });
+    const blob = await canvasToBlob(canvas, options);
+    const stem = sourceName.replace(/\.pdf$/i, "");
+    return {
+      blob,
+      fileName: `${stem}-${mode === "long" ? "long-image" : "grid"}.${extensionFor(options.format)}`,
+      mimeType: options.format,
+      width: canvas.width,
+      height: canvas.height,
+      originalSize: assets[0]?.originalSize || 0,
+      outputSize: blob.size,
+    };
+  } finally {
+    bitmaps.forEach((bitmap) => bitmap.close());
+  }
+}
 
 export async function pdfPageCount(file: File): Promise<number> {
   const task = getDocument({ data: await file.arrayBuffer() });
