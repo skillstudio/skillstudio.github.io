@@ -10,7 +10,7 @@ export function BatchResults({ jobs, zipName, onCancel }: { jobs: ProcessingJob[
   if (!jobs.length) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(2,6,23,0.16)]">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-semibold text-slate-950">{t("after")}</h2>
         {jobs.some((job) => job.status === "processing" || job.status === "pending") && onCancel ? (
@@ -29,7 +29,7 @@ export function BatchResults({ jobs, zipName, onCancel }: { jobs: ProcessingJob[
       </div>
       <div className="mt-4 grid gap-3">
         {jobs.map((job) => (
-          <article key={job.id} className="rounded-lg border border-slate-200 p-4">
+          <article key={job.id} className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-slate-300">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-slate-950">{job.file.name}</p>

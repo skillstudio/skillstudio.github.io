@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ComponentType } from "react";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 import { useLanguage } from "./i18n/LanguageContext";
 import { HomePage } from "./pages/HomePage";
 
@@ -40,10 +41,11 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-slate-950">
       <Header />
       <main>
-        <Suspense fallback={<div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-slate-900 text-sm text-slate-300">{language === "zh" ? "正在加载工具…" : "Loading tool…"}</div>}>
+        <Suspense fallback={<div className="min-h-[calc(100vh-5rem)] bg-slate-900 px-4 py-10"><div className="mx-auto grid max-w-6xl animate-pulse gap-6 lg:grid-cols-[0.78fr_1.22fr]"><div className="h-[28rem] rounded-2xl border border-slate-700 bg-slate-800/70" /><div className="h-72 rounded-2xl border border-slate-700 bg-slate-800/50" /></div><p className="mx-auto mt-6 max-w-6xl text-center text-sm text-slate-400">{language === "zh" ? "正在准备本地处理引擎…" : "Preparing the local processing engine…"}</p></div>}>
           <Page />
         </Suspense>
       </main>
+      <Footer />
     </div>
   );
 }

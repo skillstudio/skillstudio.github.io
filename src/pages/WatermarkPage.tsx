@@ -44,7 +44,7 @@ export function WatermarkPage() {
     if (!isSupportedImage(file)) throw new Error("JPG, PNG, and WEBP only");
     if (settings.kind === "logo" && !logoFile) throw new Error(zh ? "请先选择 Logo" : "Choose a logo first");
     return applyWatermark(file, logoFile, settings, options);
-  }, [logoFile, options, settings]);
+  }, [logoFile, options, settings, zh]);
   const batch = useBatchProcessing(processor);
   const previewStyle = useMemo(() => ({
     opacity: settings.opacity / 100,
@@ -61,13 +61,13 @@ export function WatermarkPage() {
     <>
       <div className="grid grid-cols-2 gap-2">
         {(["text", "logo"] as const).map((kind) => (
-          <button key={kind} className={`min-h-10 rounded-lg border text-sm font-semibold ${settings.kind === kind ? "bg-slate-950 text-white" : "border-slate-300"}`} onClick={() => setSettings({ ...settings, kind })}>{kind === "text" ? (zh ? "文字" : "Text") : "Logo"}</button>
+          <button key={kind} className={`min-h-10 rounded-lg border text-sm font-semibold ${settings.kind === kind ? "bg-slate-950 text-white" : "border-slate-300"}`} onClick={() => setSettings({ ...settings, kind })}>{kind === "text" ? (zh ? "文字" : "Text") : (zh ? "品牌标志" : "Logo")}</button>
         ))}
       </div>
       {settings.kind === "text" ? (
         <label className="block text-sm font-medium">{zh ? "水印文字" : "Watermark text"}<input className="mt-2 w-full rounded-lg border p-2" value={settings.text} onChange={(e) => setSettings({ ...settings, text: e.target.value })} /></label>
       ) : (
-        <label className="block text-sm font-medium">{zh ? "Logo 图片" : "Logo image"}<input className="mt-2 block w-full text-xs" type="file" accept="image/png,image/webp" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} /></label>
+        <label className="block text-sm font-medium">{zh ? "品牌标志图片" : "Logo image"}<input className="mt-2 block w-full text-xs" type="file" accept="image/png,image/webp" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} /></label>
       )}
       <div className="grid grid-cols-2 gap-3">
         <label className="text-sm font-medium">{zh ? "颜色" : "Color"}<input className="mt-2 block size-10" type="color" value={settings.color} onChange={(e) => setSettings({ ...settings, color: e.target.value })} /></label>
@@ -91,8 +91,19 @@ export function WatermarkPage() {
           <label className="col-span-2 flex items-center gap-2 text-xs font-medium"><input type="checkbox" checked={settings.staggered} onChange={(e) => setSettings({ ...settings, staggered: e.target.checked })} /> {zh ? "错位排列" : "Stagger rows"}</label>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-1.5">
-          {positions.map((position) => <button key={position} aria-label={position} className={`h-8 rounded border ${settings.position === position ? "bg-slate-950" : "bg-slate-100"}`} onClick={() => setSettings({ ...settings, position })} />)}
+        <div>
+          <p className="mb-2 text-xs font-semibold text-slate-500">{zh ? "水印位置" : "Watermark position"}</p>
+          <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-slate-200 bg-white p-2">
+          {positions.map((position) => {
+            const labels: Record<string, [string, string]> = {
+              "top-left": ["左上", "Top left"], "top-center": ["顶部居中", "Top center"], "top-right": ["右上", "Top right"],
+              "center-left": ["左侧居中", "Center left"], center: ["正中心", "Center"], "center-right": ["右侧居中", "Center right"],
+              "bottom-left": ["左下", "Bottom left"], "bottom-center": ["底部居中", "Bottom center"], "bottom-right": ["右下", "Bottom right"],
+            };
+            const label = labels[position][zh ? 0 : 1];
+            return <button key={position} aria-label={label} title={label} className={`group flex h-10 items-center justify-center rounded-lg border ${settings.position === position ? "border-cyan-700 bg-slate-950" : "border-slate-200 bg-slate-50 hover:border-cyan-300"}`} onClick={() => setSettings({ ...settings, position })}><span className={`size-2 rounded-full ${settings.position === position ? "bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,.8)]" : "bg-slate-400 group-hover:bg-cyan-500"}`} /></button>;
+          })}
+          </div>
         </div>
       )}
       <ExportControls value={options} onChange={setOptions} />
