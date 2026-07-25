@@ -5,8 +5,13 @@ import { FileDropzone } from "../components/FileDropzone";
 import { ToolLayout } from "../components/ToolLayout";
 import { useLanguage } from "../i18n/LanguageContext";
 import type { ExportOptions, ProcessedAsset } from "../types/media";
+import type { CompositeEstimate } from "../types/streaming";
 import { downloadAssetsZip, downloadBlob } from "../utils/download";
+import { createDownloadSink } from "../utils/fileSink";
+import { formatBytes } from "../utils/imageProcessing";
 import { composePdfPages, pdfPageCount, renderPdfPages, type PdfOutputMode } from "../utils/pdf";
+import { estimatePdfComposite, streamPdfComposite } from "../utils/pdfStreaming";
+import { PngStreamingEncoder } from "../utils/pngStream";
 import { parsePageRange } from "../utils/pageRange";
 
 export function PdfToImagePage() {
@@ -24,6 +29,9 @@ export function PdfToImagePage() {
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [estimate, setEstimate] = useState<CompositeEstimate | null>(null);
+  const [streamedResult, setStreamedResult] = useState(false);
+  const [stage, setStage] = useState<"render" | "encode" | "preview">("render");
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -31,6 +39,21 @@ export function PdfToImagePage() {
     setPreviews(urls);
     return () => urls.forEach(URL.revokeObjectURL);
   }, [results]);
+
+  useEffect(() => {
+    let active = true;
+    setEstimate(null);
+    if (!file || !pageCount || outputMode === "pages") return () => { active = false; };
+    const timer = window.setTimeout(() => {
+      try {
+        const pages = parsePageRange(range, pageCount);
+        void estimatePdfComposite(file, pages, scale, outputMode, gridColumns, options.format)
+          .then((value) => { if (active) setEstimate(value); })
+          .catch(() => {});
+      } catch { /* validation is shown when processing */ }
+    }, 200);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [file, pageCount, range, scale, outputMode, gridColumns, options.format]);
 
   async function choose(files: File[]) {
     const next = files[0];
@@ -45,11 +68,44 @@ export function PdfToImagePage() {
 
   async function process() {
     if (!file || !pageCount) return;
-    setError(""); setProcessing(true); setResults([]);
+    setError(""); setProcessing(true); setResults([]); setStreamedResult(false); setStage("render");
     const controller = new AbortController();
     controllerRef.current = controller;
     try {
       const pages = parsePageRange(range, pageCount);
+      const compositeEstimate = outputMode === "pages" ? null
+        : estimate || await estimatePdfComposite(file, pages, scale, outputMode, gridColumns, options.format);
+      if (compositeEstimate?.formatError === "jpeg-dimension-limit") {
+        throw new Error(zh ? "JPEG 的单边尺寸不能超过 65,535 像素，请改用 PNG 导出原始分辨率。" : "JPEG dimensions cannot exceed 65,535 pixels. Use PNG to preserve the original resolution.");
+      }
+      if (compositeEstimate?.strategy === "stream") {
+        if (outputMode === "pages") throw new Error("Invalid streaming output mode");
+        const hasStreamingStorage = typeof CompressionStream !== "undefined"
+          && (typeof (window as typeof window & { showSaveFilePicker?: unknown }).showSaveFilePicker === "function"
+            || typeof navigator.storage?.getDirectory === "function");
+        if (!hasStreamingStorage) {
+          throw new Error(zh ? "当前浏览器不支持超大图片流式保存，请使用最新版 Chrome、Edge、Firefox 或 Safari。" : "This browser cannot stream very large image files. Use the latest Chrome, Edge, Firefox, or Safari.");
+        }
+        if (options.format !== "image/png") {
+          throw new Error(zh ? "此 JPEG 尺寸超过浏览器安全编码范围，请改用 PNG 进行无损流式导出。" : "This JPEG exceeds the browser's safe encoding range. Use PNG for lossless streaming export.");
+        }
+        const stem = file.name.replace(/\.pdf$/i, "");
+        const fileName = `${stem}-${outputMode === "long" ? "long-image" : "grid"}.png`;
+        const target = await createDownloadSink(fileName);
+        const encoder = new PngStreamingEncoder(target.sink);
+        setStage("encode");
+        setProgress({ done: 0, total: compositeEstimate.height });
+        await streamPdfComposite(file, pages, scale, outputMode, gridColumns, encoder, (done, total) => setProgress({ done, total }), controller.signal);
+        await target.complete();
+
+        setStage("preview");
+        const previewScale = Math.max(0.001, scale * Math.min(1, 2048 / Math.max(compositeEstimate.width, compositeEstimate.height)));
+        const previewPages = await renderPdfPages(file, pages, previewScale, { ...options, format: "image/png" }, () => {}, controller.signal);
+        const preview = await composePdfPages(previewPages, file.name, outputMode, gridColumns, { ...options, format: "image/png" }, controller.signal);
+        setResults([{ ...preview, fileName, width: compositeEstimate.width, height: compositeEstimate.height, outputSize: 0 }]);
+        setStreamedResult(true);
+        return;
+      }
       const total = pages.length + (outputMode === "pages" ? 0 : 1);
       setProgress({ done: 0, total });
       const pageAssets = await renderPdfPages(file, pages, scale, options, (done) => setProgress({ done, total }), controller.signal);
@@ -97,6 +153,13 @@ export function PdfToImagePage() {
         </label>
       )}
       <ExportControls value={options} onChange={setOptions} formats={["image/png", "image/jpeg"]} />
+      {estimate && outputMode !== "pages" && (
+        <div className={`rounded-lg border p-3 text-xs ${estimate.strategy === "stream" ? "border-amber-300 bg-amber-50 text-amber-900" : "border-slate-200 bg-slate-50 text-slate-700"}`}>
+          <p className="font-semibold">{estimate.width.toLocaleString()} × {estimate.height.toLocaleString()} px</p>
+          <p className="mt-1">{zh ? "常规画布预计内存" : "Estimated canvas memory"}：{formatBytes(estimate.estimatedCanvasBytes)}</p>
+          {estimate.strategy === "stream" && <p className="mt-1">{zh ? "将使用无损分块流式导出，不降低下载分辨率。" : "Lossless tiled streaming will preserve download resolution."}</p>}
+        </div>
+      )}
       <button className="min-h-11 w-full rounded-lg bg-cyan-700 font-semibold text-white disabled:opacity-40" disabled={!file || processing || !pageCount} onClick={() => void process()}>
         {processing ? `${t("processing")} ${progress.done}/${progress.total}` : t("process")}
       </button>
@@ -108,7 +171,7 @@ export function PdfToImagePage() {
     <ToolLayout icon={FileImage} title={t("pdf")} description={t("pdfDesc")} controls={controls}>
       <FileDropzone accept="application/pdf" multiple={false} detail={file ? `${file.name} · ${pageCount} ${zh ? "页" : "pages"}` : (zh ? "PDF · 本地处理" : "PDF · processed locally")} onFiles={(files) => void choose(files)} />
       {error && <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
-      {processing && <div className="flex items-center gap-3 rounded-xl bg-white p-4 text-sm"><Loader2 className="size-5 animate-spin" /> {progress.done}/{progress.total}</div>}
+      {processing && <div className="flex items-center gap-3 rounded-xl bg-white p-4 text-sm"><Loader2 className="size-5 animate-spin" /> {stage === "render" ? (zh ? "正在渲染" : "Rendering") : stage === "encode" ? (zh ? "正在编码并写入文件" : "Encoding and writing") : (zh ? "正在生成低清预览" : "Generating preview")} · {progress.done}/{progress.total}</div>}
       {results.length > 0 && (
         <div className="rounded-xl bg-white p-4">
           <div className="flex items-center justify-between">
@@ -121,8 +184,11 @@ export function PdfToImagePage() {
                 <img className="aspect-[4/3] w-full bg-slate-100 object-contain" src={previews[index]} alt={asset.fileName} />
                 <div className="flex items-center justify-between gap-2 p-3">
                   <p className="truncate text-xs font-medium">{asset.fileName}</p>
-                  <button aria-label={`Download ${asset.fileName}`} onClick={() => downloadBlob(asset.blob, asset.fileName)}><Download className="size-4" /></button>
+                  {streamedResult
+                    ? <span className="text-xs font-semibold text-emerald-700">{zh ? "原图已保存" : "Original saved"}</span>
+                    : <button aria-label={`Download ${asset.fileName}`} onClick={() => downloadBlob(asset.blob, asset.fileName)}><Download className="size-4" /></button>}
                 </div>
+                {streamedResult && <p className="border-t border-slate-100 p-3 text-xs text-slate-500">{zh ? "预览已缩小；下载文件保持所选渲染倍率与原始分辨率。" : "Preview is reduced; the downloaded file preserves the selected scale and full resolution."}</p>}
               </article>
             ))}
           </div>
