@@ -9,7 +9,7 @@ Privacy-first professional image tools that run locally in your browser.
 - Batch queues with per-file error isolation, cancellation, and ZIP download
 - JPG, PNG, and WEBP export controls
 - English and Simplified Chinese interface
-- Local browser processing—files are never uploaded
+- Browser-based processing for supported image workflows
 - Responsive desktop, tablet, and mobile layout
 
 ## Development

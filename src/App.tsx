@@ -10,6 +10,7 @@ const CropPage = lazy(() => import("./pages/CropPage").then((module) => ({ defau
 const PdfToImagePage = lazy(() => import("./pages/PdfToImagePage").then((module) => ({ default: module.PdfToImagePage })));
 const ResizePage = lazy(() => import("./pages/ResizePage").then((module) => ({ default: module.ResizePage })));
 const WatermarkPage = lazy(() => import("./pages/WatermarkPage").then((module) => ({ default: module.WatermarkPage })));
+const CommerceStudioPage = lazy(() => import("./pages/CommerceStudioPage").then((module) => ({ default: module.CommerceStudioPage })));
 
 const routes: Record<string, ComponentType> = {
   "/": HomePage,
@@ -19,6 +20,7 @@ const routes: Record<string, ComponentType> = {
   "/image-converter": ConverterPage,
   "/image-crop": CropPage,
   "/image-watermark": WatermarkPage,
+  "/commerce-studio": CommerceStudioPage,
 };
 
 function NotFoundPage() {
@@ -39,7 +41,7 @@ export default function App() {
   const Page = routes[pathname] || NotFoundPage;
   return (
     <div className="min-h-screen bg-slate-950 text-slate-950">
-      <Header />
+      <Header wide={pathname === "/commerce-studio"} />
       <main>
         <Suspense fallback={<div className="min-h-[calc(100vh-5rem)] bg-slate-900 px-4 py-10"><div className="mx-auto grid max-w-6xl animate-pulse gap-6 lg:grid-cols-[0.78fr_1.22fr]"><div className="h-[28rem] rounded-2xl border border-slate-700 bg-slate-800/70" /><div className="h-72 rounded-2xl border border-slate-700 bg-slate-800/50" /></div><p className="mx-auto mt-6 max-w-6xl text-center text-sm text-slate-400">{language === "zh" ? "正在准备本地处理引擎…" : "Preparing the local processing engine…"}</p></div>}>
           <Page />

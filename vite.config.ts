@@ -11,6 +11,7 @@ const toolRoutes = [
   "image-converter",
   "image-crop",
   "image-watermark",
+  "commerce-studio",
 ];
 
 function githubPagesRoutes() {

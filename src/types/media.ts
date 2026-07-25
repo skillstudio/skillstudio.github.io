@@ -16,6 +16,8 @@ export type ProcessedAsset = {
   originalSize: number;
   outputSize: number;
   previewUrl?: string;
+  compressionStatus?: "reduced" | "unchanged";
+  actualQuality?: number;
 };
 
 export type ProcessingJob = {

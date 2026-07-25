@@ -6,8 +6,8 @@ import { useLanguage } from "../i18n/LanguageContext";
 export function HomePage() {
   const { language, t } = useLanguage();
   const benefits = language === "zh"
-    ? [["无需上传", "文件始终留在你的设备上。"], ["即时处理", "无需等待文件上传和下载。"], ["完整工作流", "批处理、预览和打包下载。"]]
-    : [["No Upload", "Files stay on your device."], ["Instant Processing", "No waiting for uploads or transfers."], ["Complete Workflow", "Batch processing, previews, and ZIP downloads."]];
+    ? [["浏览器端处理", "支持的图像任务在当前浏览器中完成。"], ["即时反馈", "处理进度和结果可在页面中查看。"], ["工作流支持", "支持批处理、预览和打包下载。"]]
+    : [["Browser Processing", "Supported image tasks run in the current browser."], ["Immediate Feedback", "View processing progress and results on the page."], ["Workflow Support", "Batch processing, previews, and ZIP downloads."]];
   return (
     <>
       <section className="border-b border-slate-800 bg-slate-950">
@@ -28,10 +28,10 @@ export function HomePage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
-                href="/compress"
+                href="/commerce-studio"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 shadow-xl shadow-black/20 transition hover:-translate-y-0.5 hover:bg-cyan-50"
               >
-                {t("uploadImages")}
+                {language === "zh" ? "进入电商图片工作室" : "Open Commerce Studio"}
                 <ArrowRight className="size-4" aria-hidden="true" />
               </a>
               <a

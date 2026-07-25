@@ -7,7 +7,7 @@ import { ToolLayout } from "../components/ToolLayout";
 import { useBatchProcessing } from "../hooks/useBatchProcessing";
 import { useLanguage } from "../i18n/LanguageContext";
 import type { ExportOptions } from "../types/media";
-import { decodeImage, isSupportedImage, renderImage } from "../utils/imageProcessing";
+import { compressImage, isSupportedImage } from "../utils/imageProcessing";
 
 export function CompressorPage() {
   const { language, t } = useLanguage();
@@ -16,11 +16,17 @@ export function CompressorPage() {
   });
   const processor = useCallback(async (file: File) => {
     if (!isSupportedImage(file)) throw new Error("JPG, PNG, and WEBP only");
-    const image = await decodeImage(file);
-    const { width, height } = image;
-    image.close();
-    return renderImage(file, width, height, options, "compressed");
-  }, [options]);
+    try {
+      return await compressImage(file, options);
+    } catch (error) {
+      if (error instanceof Error && error.message === "NO_SMALLER_OUTPUT") {
+        throw new Error(language === "zh"
+          ? "在质量不低于 40 的条件下，所选格式无法生成更小的文件。请降低质量或保持原格式。"
+          : "The selected format cannot produce a smaller file above quality 40. Lower quality or keep the original format.");
+      }
+      throw error;
+    }
+  }, [language, options]);
   const batch = useBatchProcessing(processor);
 
   return (

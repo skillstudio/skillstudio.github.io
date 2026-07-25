@@ -5,6 +5,7 @@ import {
   Maximize,
   RefreshCcw,
   Stamp,
+  Store,
   type LucideIcon,
 } from "lucide-react";
 import type { TranslationKey } from "../i18n/translations";
@@ -20,6 +21,13 @@ export type Tool = {
 };
 
 export const tools: Tool[] = [
+  {
+    nameKey: "commerceStudio",
+    path: "/commerce-studio",
+    descriptionKey: "commerceStudioDesc",
+    status: "available",
+    icon: Store,
+  },
   {
     nameKey: "compressor",
     path: "/compress",

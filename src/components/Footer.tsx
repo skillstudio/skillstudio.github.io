@@ -14,7 +14,7 @@ export function Footer() {
             <span className="font-semibold tracking-tight">ImgSkills</span>
           </div>
           <p className="mt-4 max-w-sm text-sm leading-6">
-            {zh ? "专业、私密的浏览器本地图像工作室。文件不上传，无需注册。" : "A professional, private image studio that runs locally in your browser. No uploads, no account."}
+            {zh ? "面向常用图像任务的浏览器端图像工作室，无需注册即可使用。" : "A browser-based image studio for common image tasks, available without registration."}
           </p>
         </div>
         <div>
@@ -27,7 +27,7 @@ export function Footer() {
       <div className="border-t border-slate-800/70">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>© 2026 ImgSkills</p>
-          <p>{zh ? "所有文件仅在当前设备中处理" : "Every file is processed only on your device"}</p>
+          <p>{zh ? "支持的图像任务在当前浏览器中处理" : "Supported image tasks are processed in the current browser"}</p>
         </div>
       </div>
     </footer>

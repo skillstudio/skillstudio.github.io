@@ -108,6 +108,68 @@ export async function renderImage(
   }
 }
 
+export async function compressImage(
+  file: File,
+  options: ExportOptions,
+): Promise<ProcessedAsset> {
+  const image = await decodeImage(file);
+  try {
+    const { canvas, context } = createCanvas(image.width, image.height);
+    fillExportBackground(context, canvas.width, canvas.height, options);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    const qualities = options.format === "image/png"
+      ? [100]
+      : Array.from(
+        new Set([
+          Math.min(100, Math.max(40, options.quality)),
+          ...Array.from({ length: 13 }, (_, index) => Math.max(40, options.quality - (index + 1) * 5)),
+        ]),
+      ).sort((a, b) => b - a);
+
+    let smallest: { blob: Blob; quality: number } | null = null;
+    for (const quality of qualities) {
+      const blob = await canvasToBlob(canvas, { ...options, quality });
+      if (!smallest || blob.size < smallest.blob.size) smallest = { blob, quality };
+      if (blob.size < file.size) {
+        return {
+          blob,
+          fileName: outputName(file.name, "compressed", options.format),
+          mimeType: options.format,
+          width: canvas.width,
+          height: canvas.height,
+          originalSize: file.size,
+          outputSize: blob.size,
+          compressionStatus: "reduced",
+          actualQuality: quality,
+        };
+      }
+    }
+
+    // Re-encoding an already optimized file can increase its size. If the
+    // requested format matches, keep the original bytes instead of returning
+    // a misleading "compressed" file that is larger.
+    if (file.type === options.format) {
+      return {
+        blob: file,
+        fileName: outputName(file.name, "compressed", options.format),
+        mimeType: options.format,
+        width: canvas.width,
+        height: canvas.height,
+        originalSize: file.size,
+        outputSize: file.size,
+        compressionStatus: "unchanged",
+        actualQuality: 100,
+      };
+    }
+    throw new Error(smallest ? "NO_SMALLER_OUTPUT" : "COMPRESSION_FAILED");
+  } finally {
+    image.close();
+  }
+}
+
 export async function cropImage(
   file: File,
   area: CropArea,

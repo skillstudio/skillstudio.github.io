@@ -4,7 +4,11 @@ import QRCode from "qrcode";
 import { useLanguage } from "../i18n/LanguageContext";
 import { tools } from "../data/tools";
 
-export function Header() {
+type HeaderProps = {
+  wide?: boolean;
+};
+
+export function Header({ wide = false }: HeaderProps) {
   const { language, t, toggleLanguage } = useLanguage();
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
@@ -85,7 +89,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/95 text-white shadow-[0_1px_0_rgba(255,255,255,0.02)] backdrop-blur-xl">
-      <div className="relative mx-auto flex min-h-20 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className={`relative mx-auto flex min-h-20 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 ${wide ? "max-w-[82rem]" : "max-w-6xl"}`}>
         <a href="/" className="group flex items-center gap-3.5" aria-label="ImgSkills home">
           <span className="flex size-11 items-center justify-center overflow-hidden rounded-xl shadow-[0_8px_28px_rgba(34,211,238,0.18)] ring-1 ring-white/15 transition-transform group-hover:-translate-y-0.5">
             <svg
@@ -121,13 +125,8 @@ export function Header() {
               <circle cx="27.8" cy="17.7" r="1.8" fill="white" />
             </svg>
           </span>
-          <span className="flex flex-col">
-            <span className="text-[1.15rem] font-semibold leading-tight tracking-[-0.025em] text-white">
-              ImgSkills
-            </span>
-            <span className="mt-0.5 hidden text-[0.65rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-400 sm:block">
-              {language === "zh" ? "私密图像工作室" : "Private Image Studio"}
-            </span>
+          <span className="text-[1.05rem] font-semibold leading-tight tracking-[-0.02em] text-white sm:text-[1.1rem]">
+            {language === "zh" ? "图像技能平台" : "Image Skills Platform"}
           </span>
         </a>
         <nav className="relative flex items-center gap-2 text-sm text-slate-300">
@@ -137,7 +136,6 @@ export function Header() {
             <ChevronDown className={`size-3.5 transition ${isToolsOpen ? "rotate-180" : ""}`} />
           </button>
           <button
-            ref={qrTriggerRef}
             type="button"
             className="inline-flex size-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-xs font-semibold text-slate-300 transition hover:border-cyan-500/60 hover:bg-slate-800 hover:text-cyan-300"
             aria-label={language === "zh" ? "切换语言" : "Switch language"}
@@ -148,6 +146,7 @@ export function Header() {
             <span className="sr-only">{t("language")}</span>
           </button>
           <button
+            ref={qrTriggerRef}
             type="button"
             className="inline-flex size-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-cyan-500/60 hover:bg-slate-800 hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             aria-label={t("mobileAccess")}

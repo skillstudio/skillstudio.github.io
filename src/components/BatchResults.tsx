@@ -40,9 +40,21 @@ export function BatchResults({ jobs, zipName, onCancel }: { jobs: ProcessingJob[
                 )}
                 {job.error && <p className="mt-2 text-sm text-red-700">{job.error}</p>}
                 {job.result && (
-                  <p className="mt-2 text-sm text-slate-600">
-                    {job.result.width}×{job.result.height} · {formatBytes(job.file.size)} → {formatBytes(job.result.outputSize)}
-                  </p>
+                  <>
+                    <p className="mt-2 text-sm text-slate-600">
+                      {job.result.width}×{job.result.height} · {formatBytes(job.file.size)} → {formatBytes(job.result.outputSize)}
+                    </p>
+                    {job.result.compressionStatus === "unchanged" && (
+                      <p className="mt-1 text-xs font-medium text-amber-700">
+                        {t("compressionUnchanged")}
+                      </p>
+                    )}
+                    {job.result.compressionStatus === "reduced" && job.result.actualQuality && (
+                      <p className="mt-1 text-xs text-emerald-700">
+                        {t("actualQuality")} {job.result.actualQuality}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
               <button
