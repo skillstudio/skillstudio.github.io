@@ -32,7 +32,10 @@ function NotFoundPage() {
 
 export default function App() {
   const { language } = useLanguage();
-  const Page = routes[window.location.pathname] || NotFoundPage;
+  const pathname = window.location.pathname.length > 1
+    ? window.location.pathname.replace(/\/+$/, "")
+    : "/";
+  const Page = routes[pathname] || NotFoundPage;
   return (
     <div className="min-h-screen bg-slate-950 text-slate-950">
       <Header />

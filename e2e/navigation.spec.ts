@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const routes = ["/compress", "/pdf-to-image", "/image-resize", "/image-converter", "/image-crop", "/image-watermark"];
+const directRoutes = routes.flatMap((route) => [route, `${route}/`]);
 
 test("home exposes every live tool", async ({ page }) => {
   await page.goto("/");
@@ -8,7 +9,7 @@ test("home exposes every live tool", async ({ page }) => {
   for (const route of routes) await expect(page.locator(`a[href="${route}"]`)).toBeVisible();
 });
 
-for (const route of routes) {
+for (const route of directRoutes) {
   test(`${route} loads directly`, async ({ page }) => {
     await page.goto(route);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
