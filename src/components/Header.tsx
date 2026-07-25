@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 export function Header() {
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
-  const siteAddress = new URL("/imgskills/", window.location.origin);
+  const siteAddress = new URL("/", window.location.origin);
 
   if (siteAddress.hostname === "localhost" || siteAddress.hostname === "127.0.0.1") {
     siteAddress.hostname = __DEV_LAN_HOST__;
@@ -43,7 +43,7 @@ export function Header() {
   return (
     <header className="border-b border-slate-800 bg-slate-950 text-white">
       <div className="relative mx-auto flex min-h-20 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <a href="/imgskills/" className="group flex items-center gap-3.5" aria-label="ImgSkills home">
+        <a href="/" className="group flex items-center gap-3.5" aria-label="ImgSkills home">
           <span className="flex size-11 items-center justify-center overflow-hidden rounded-xl shadow-[0_8px_28px_rgba(34,211,238,0.18)] ring-1 ring-white/15 transition-transform group-hover:-translate-y-0.5">
             <svg
               viewBox="0 0 44 44"
@@ -88,12 +88,12 @@ export function Header() {
           </span>
         </a>
         <nav className="flex items-center gap-2 text-sm text-slate-300">
-          <a className="hidden rounded-lg px-3 py-2 hover:bg-slate-800 hover:text-white sm:inline-flex" href="/imgskills/#tools">
+          <a className="hidden rounded-lg px-3 py-2 hover:bg-slate-800 hover:text-white sm:inline-flex" href="/#tools">
             Tools
           </a>
           <a
             className="hidden min-h-11 items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 font-medium text-white transition hover:border-slate-600 hover:bg-slate-800 md:inline-flex"
-            href="/imgskills/compress"
+            href="/compress"
           >
             <ShieldCheck className="size-4" aria-hidden="true" />
             Compress

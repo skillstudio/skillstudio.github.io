@@ -8,14 +8,9 @@
   <body>
     <script>
       (function () {
-        var base = "/imgskills";
         var path = window.location.pathname + window.location.search + window.location.hash;
-        if (path.indexOf(base) === 0) {
-          sessionStorage.setItem("imgskills-redirect", path);
-          window.location.replace(base + "/");
-        } else {
-          window.location.replace(base + "/");
-        }
+        sessionStorage.setItem("imgskills-redirect", path);
+        window.location.replace("/");
       })();
     </script>
   </body>

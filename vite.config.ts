@@ -18,7 +18,7 @@ function getLanAddress(): string {
 }
 
 export default defineConfig({
-  base: "/imgskills/",
+  base: "/",
   define: {
     __DEV_LAN_HOST__: JSON.stringify(getLanAddress()),
   },
