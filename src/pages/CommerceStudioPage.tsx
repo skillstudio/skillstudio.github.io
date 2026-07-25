@@ -28,8 +28,8 @@ const defaultBrand: BrandKit = {
 const defaultCompression: CommerceCompressionSettings = {
   enabled: true, profile: "balanced", quality: 82,
 };
-const settingsRevision = 2;
-const defaultSubjectMode: SubjectExtractionMode = "precise";
+const settingsRevision = 3;
+const defaultSubjectMode: SubjectExtractionMode = "original";
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
