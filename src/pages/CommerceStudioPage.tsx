@@ -28,6 +28,8 @@ const defaultBrand: BrandKit = {
 const defaultCompression: CommerceCompressionSettings = {
   enabled: true, profile: "balanced", quality: 82,
 };
+const settingsRevision = 2;
+const defaultSubjectMode: SubjectExtractionMode = "precise";
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
@@ -35,15 +37,18 @@ function readSavedSettings(): { presetIds: string[]; brandKit: BrandKit; compres
   try {
     const value = JSON.parse(localStorage.getItem("imgskills-commerce-v2-settings") || "");
     if (Array.isArray(value.presetIds) && value.brandKit) {
+      const useUpdatedDefaults = value.settingsRevision !== settingsRevision;
       return {
-        presetIds: value.presetIds,
+        presetIds: useUpdatedDefaults ? defaultCommercePresetIds : value.presetIds,
         brandKit: { ...defaultBrand, ...value.brandKit, logoWatermark: { ...defaultBrand.logoWatermark, ...value.brandKit.logoWatermark, enabled: false } },
         compression: { ...defaultCompression, ...value.compression },
-        subjectMode: value.subjectMode === "original" || value.subjectMode === "precise" ? value.subjectMode : "standard",
+        subjectMode: useUpdatedDefaults
+          ? defaultSubjectMode
+          : value.subjectMode === "original" || value.subjectMode === "precise" ? value.subjectMode : "standard",
       };
     }
   } catch { /* use defaults */ }
-  return { presetIds: defaultCommercePresetIds, brandKit: defaultBrand, compression: defaultCompression, subjectMode: "standard" };
+  return { presetIds: defaultCommercePresetIds, brandKit: defaultBrand, compression: defaultCompression, subjectMode: defaultSubjectMode };
 }
 
 export function CommerceStudioPage() {
@@ -94,7 +99,7 @@ export function CommerceStudioPage() {
 
   useEffect(() => {
     const persistedBrand = { ...brandKit, logoWatermark: { ...brandKit.logoWatermark, enabled: false } };
-    localStorage.setItem("imgskills-commerce-v2-settings", JSON.stringify({ presetIds, brandKit: persistedBrand, compression, subjectMode }));
+    localStorage.setItem("imgskills-commerce-v2-settings", JSON.stringify({ settingsRevision, presetIds, brandKit: persistedBrand, compression, subjectMode }));
   }, [presetIds, brandKit, compression, subjectMode]);
 
   useEffect(() => {
@@ -363,7 +368,7 @@ export function CommerceStudioPage() {
                 <section className="rounded-2xl border border-slate-700 bg-slate-950/45 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div><h3 className="text-sm font-semibold text-white">{zh ? "输出压缩" : "Output compression"}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{zh ? "在不改变平台规格尺寸的前提下优化成品文件大小。" : "Optimize file size without changing platform dimensions."}</p></div>
-                    <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" className="size-4 accent-cyan-300" checked={compression.enabled} onChange={(event) => setCompression({ ...compression, enabled: event.target.checked })} />{zh ? "启用" : "Enabled"}</label>
+                    <label className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-300"><input type="checkbox" className="size-4 accent-cyan-300" checked={compression.enabled} onChange={(event) => setCompression({ ...compression, enabled: event.target.checked })} />{zh ? "启用" : "Enabled"}</label>
                   </div>
                   {compression.enabled && <div className="mt-4">
                     <div className="grid grid-cols-2 gap-2">
@@ -382,7 +387,7 @@ export function CommerceStudioPage() {
                 <section className="rounded-2xl border border-slate-700 bg-slate-950/45 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div><h3 className="text-sm font-semibold text-white">{zh ? "Logo 水印" : "Logo watermark"}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{zh ? "可选配置，仅应用于允许品牌元素的成品。" : "Optional; applied only to deliverables that permit branding."}</p></div>
-                    <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" className="size-4 accent-cyan-300" checked={brandKit.logoWatermark.enabled} onChange={(event) => setBrandKit({ ...brandKit, logoWatermark: { ...brandKit.logoWatermark, enabled: event.target.checked } })} />{zh ? "启用" : "Enabled"}</label>
+                    <label className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-300"><input type="checkbox" className="size-4 accent-cyan-300" checked={brandKit.logoWatermark.enabled} onChange={(event) => setBrandKit({ ...brandKit, logoWatermark: { ...brandKit.logoWatermark, enabled: event.target.checked } })} />{zh ? "启用" : "Enabled"}</label>
                   </div>
                   {brandKit.logoWatermark.enabled && <div className="mt-4">
                     {logoUrl ? <div className="flex items-center gap-3 rounded-xl border border-slate-700 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:16px_16px] p-3"><img className="h-14 w-24 object-contain" src={logoUrl} alt={zh ? "Logo 预览" : "Logo preview"} /><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-slate-200">{logoFile?.name}</strong><span className="mt-1 block text-[10px] text-slate-500">{logoFile && formatBytes(logoFile.size)}</span></div><button type="button" onClick={removeLogo} className="flex size-9 items-center justify-center rounded-lg bg-slate-950/70 text-slate-400 hover:text-rose-300" aria-label={zh ? "移除 Logo" : "Remove logo"}><Trash2 className="size-4" /></button></div> : <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-600 bg-slate-900/50 text-center hover:border-cyan-300/50"><Upload className="size-5 text-cyan-300" /><span className="mt-2 text-xs font-semibold text-slate-200">{zh ? "上传 Logo" : "Upload logo"}</span><span className="mt-1 text-[10px] text-slate-500">PNG · WEBP · ≤ 10 MB</span><input className="hidden" type="file" accept="image/png,image/webp" onChange={(event) => handleLogoFile(event.target.files?.[0])} /></label>}

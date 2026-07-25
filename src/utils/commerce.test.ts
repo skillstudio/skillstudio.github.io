@@ -20,11 +20,15 @@ describe("commerce studio utilities", () => {
     expect(qualityWarnings(1800, 1800, 120, 30)).toEqual([]);
   });
 
-  it("ships valid domestic and international defaults", () => {
+  it("ships a practical, device-conscious universal default pack", () => {
     const defaults = commercePresets.filter((preset) => defaultCommercePresetIds.includes(preset.id));
-    expect(defaults.some((preset) => preset.marketplace === "universal")).toBe(true);
-    expect(defaults.some((preset) => preset.marketplace === "taobao")).toBe(true);
-    expect(defaults.some((preset) => preset.marketplace === "amazon")).toBe(true);
+    expect(defaults.map((preset) => preset.id)).toEqual([
+      "universal-cutout",
+      "universal-main",
+      "universal-detail",
+      "universal-thumbnail",
+    ]);
+    expect(defaults.every((preset) => preset.marketplace === "universal")).toBe(true);
     expect(commercePresets.every((preset) => preset.width > 0 && preset.height > 0)).toBe(true);
   });
 

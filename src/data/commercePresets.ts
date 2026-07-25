@@ -28,6 +28,8 @@ export const commercePresets: MarketplacePreset[] = [
 ];
 
 export const defaultCommercePresetIds = [
-  "universal-cutout", "universal-main", "universal-brand", "universal-studio",
-  "universal-detail", "universal-thumbnail", "taobao-main", "amazon-main",
+  "universal-cutout",
+  "universal-main",
+  "universal-detail",
+  "universal-thumbnail",
 ];
