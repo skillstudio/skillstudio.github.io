@@ -1,10 +1,12 @@
 import type { Tool } from "../data/tools";
+import { useLanguage } from "../i18n/LanguageContext";
 
 type ToolCardProps = {
   tool: Tool;
 };
 
 export function ToolCard({ tool }: ToolCardProps) {
+  const { t } = useLanguage();
   const Icon = tool.icon;
   const isAvailable = tool.status === "available";
 
@@ -19,12 +21,12 @@ export function ToolCard({ tool }: ToolCardProps) {
           <Icon className="size-5" aria-hidden="true" />
         </span>
         <span className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600">
-          {isAvailable ? "Live" : "Soon"}
+          {isAvailable ? t("live") : t("soon")}
         </span>
       </div>
       <div>
-        <h3 className="mt-5 text-base font-semibold text-slate-950">{tool.name}</h3>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{tool.description}</p>
+        <h3 className="mt-5 text-base font-semibold text-slate-950">{t(tool.nameKey)}</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{t(tool.descriptionKey)}</p>
       </div>
     </a>
   );

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { QrCode, ShieldCheck, X } from "lucide-react";
+import { Languages, QrCode, ShieldCheck, X } from "lucide-react";
 import QRCode from "qrcode";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export function Header() {
+  const { language, t, toggleLanguage } = useLanguage();
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const siteAddress = new URL("/", window.location.origin);
@@ -83,26 +85,36 @@ export function Header() {
               ImgSkills
             </span>
             <span className="mt-0.5 hidden text-[0.65rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-400 sm:block">
-              Private Image Studio
+              {language === "zh" ? "私密图像工作室" : "Private Image Studio"}
             </span>
           </span>
         </a>
         <nav className="flex items-center gap-2 text-sm text-slate-300">
           <a className="hidden rounded-lg px-3 py-2 hover:bg-slate-800 hover:text-white sm:inline-flex" href="/#tools">
-            Tools
+            {t("navTools")}
           </a>
           <a
             className="hidden min-h-11 items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 font-medium text-white transition hover:border-slate-600 hover:bg-slate-800 md:inline-flex"
             href="/compress"
           >
             <ShieldCheck className="size-4" aria-hidden="true" />
-            Compress
+            {t("navCompress")}
           </a>
           <button
             type="button"
+            className="inline-flex size-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-xs font-semibold text-slate-300 transition hover:border-cyan-500/60 hover:bg-slate-800 hover:text-cyan-300"
+            aria-label={language === "zh" ? "切换语言" : "Switch language"}
+            title={language === "zh" ? "切换语言" : "Switch language"}
+            onClick={toggleLanguage}
+          >
+            <Languages className="size-[1.05rem]" aria-hidden="true" />
+            <span className="sr-only">{t("language")}</span>
+          </button>
+          <button
+            type="button"
             className="inline-flex size-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-cyan-500/60 hover:bg-slate-800 hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-            aria-label="手机访问"
-            title="手机扫码访问"
+            aria-label={t("mobileAccess")}
+            title={t("mobileAccess")}
             aria-expanded={isQrOpen}
             aria-controls="mobile-access-qr"
             onClick={() => setIsQrOpen((current) => !current)}
@@ -116,26 +128,24 @@ export function Header() {
             <button
               type="button"
               className="fixed inset-0 z-40 cursor-default bg-slate-950/20"
-              aria-label="关闭手机访问二维码"
+              aria-label="Close QR code"
               onClick={() => setIsQrOpen(false)}
             />
             <div
               id="mobile-access-qr"
               className="absolute right-4 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-slate-200 bg-white p-5 text-slate-950 shadow-[0_24px_80px_rgba(2,6,23,0.35)] sm:right-6 lg:right-8"
               role="dialog"
-              aria-label="手机扫码访问"
+              aria-label={t("scanTitle")}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-base font-semibold tracking-tight">手机扫码访问</h2>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    使用手机相机扫描二维码，立即打开 ImgSkills。
-                  </p>
+                  <h2 className="text-base font-semibold tracking-tight">{t("scanTitle")}</h2>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">{t("scanBody")}</p>
                 </div>
                 <button
                   type="button"
                   className="flex size-8 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                  aria-label="关闭"
+                  aria-label="Close"
                   onClick={() => setIsQrOpen(false)}
                 >
                   <X className="size-4" aria-hidden="true" />
@@ -144,9 +154,9 @@ export function Header() {
 
               <div className="mx-auto mt-4 flex size-60 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white">
                 {qrCodeUrl ? (
-                  <img className="size-full" src={qrCodeUrl} alt={`访问 ${siteUrl} 的二维码`} />
+                  <img className="size-full" src={qrCodeUrl} alt={`QR code for ${siteUrl}`} />
                 ) : (
-                  <span className="text-sm text-slate-500">正在生成二维码…</span>
+                  <span className="text-sm text-slate-500">{t("processing")}…</span>
                 )}
               </div>
 

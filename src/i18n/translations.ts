@@ -1,0 +1,48 @@
+export type Language = "en" | "zh";
+
+export const translations = {
+  en: {
+    navTools: "Tools", navCompress: "Compress", mobileAccess: "Mobile access",
+    scanTitle: "Scan to open on mobile", scanBody: "Scan with your phone camera to open ImgSkills.",
+    localFirst: "Local-first image processing", heroTitle: "Professional image tools. Private by design.",
+    heroLead: "Production-ready image workflows that run entirely in your browser.",
+    heroBody: "Compress, convert, resize, crop, watermark, and export PDFs without sending files to a server.",
+    uploadImages: "Start with an image", viewTools: "Explore tools", toolsTitle: "Every essential image workflow",
+    toolsEyebrow: "Private production studio", toolsBody: "Six focused tools, one consistent local workflow.",
+    chooseFiles: "Choose files", dropImages: "Drag & drop files here", processing: "Processing",
+    download: "Download", downloadZip: "Download all as ZIP", reset: "Reset", process: "Process files",
+    privacy: "Files are processed locally in this browser and never uploaded.",
+    quality: "Quality", outputFormat: "Output format", background: "JPG background",
+    before: "Before", after: "After", dimensions: "Dimensions", error: "Processing failed",
+    language: "中文", soon: "Soon", live: "Live",
+    compressor: "Image Compressor", compressorDesc: "Reduce file size with adjustable quality.",
+    pdf: "PDF to Image", pdfDesc: "Export PDF pages as crisp PNG or JPG files.",
+    resize: "Image Resize", resizeDesc: "Resize images with pixels, percentages, and presets.",
+    converter: "Image Converter", converterDesc: "Convert batches between JPG, PNG, and WEBP.",
+    crop: "Image Crop", cropDesc: "Crop, rotate, and frame an image precisely.",
+    watermark: "Image Watermark", watermarkDesc: "Apply text, logos, or tiled protection marks.",
+  },
+  zh: {
+    navTools: "工具", navCompress: "压缩", mobileAccess: "手机访问",
+    scanTitle: "手机扫码访问", scanBody: "使用手机相机扫描二维码，立即打开 ImgSkills。",
+    localFirst: "本地优先图像处理", heroTitle: "专业图像工具，隐私优先设计。",
+    heroLead: "完全在浏览器中运行的生产级图像工作流。",
+    heroBody: "压缩、转换、缩放、裁剪、水印及 PDF 导出，全程无需上传文件。",
+    uploadImages: "开始处理图片", viewTools: "浏览全部工具", toolsTitle: "覆盖常用图像工作流",
+    toolsEyebrow: "私密生产工作室", toolsBody: "六款专注工具，一套一致的本地工作流。",
+    chooseFiles: "选择文件", dropImages: "拖放文件到这里", processing: "处理中",
+    download: "下载", downloadZip: "全部打包下载", reset: "重置", process: "开始处理",
+    privacy: "文件仅在当前浏览器中处理，绝不会上传。",
+    quality: "质量", outputFormat: "输出格式", background: "JPG 背景色",
+    before: "处理前", after: "处理后", dimensions: "尺寸", error: "处理失败",
+    language: "EN", soon: "即将上线", live: "可用",
+    compressor: "图片压缩", compressorDesc: "通过可调质量减少图片文件大小。",
+    pdf: "PDF 转图片", pdfDesc: "将 PDF 页面导出为清晰的 PNG 或 JPG。",
+    resize: "图片缩放", resizeDesc: "使用像素、百分比和预设尺寸缩放图片。",
+    converter: "格式转换", converterDesc: "批量转换 JPG、PNG 和 WEBP。",
+    crop: "图片裁剪", cropDesc: "精确裁剪、旋转和构图。",
+    watermark: "图片水印", watermarkDesc: "添加文字、Logo 或平铺防护水印。",
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations.en;

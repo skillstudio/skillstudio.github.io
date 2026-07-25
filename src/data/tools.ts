@@ -7,58 +7,59 @@ import {
   Stamp,
   type LucideIcon,
 } from "lucide-react";
+import type { TranslationKey } from "../i18n/translations";
 
 export type ToolStatus = "available" | "planned";
 
 export type Tool = {
-  name: string;
+  nameKey: TranslationKey;
   path: string;
-  description: string;
+  descriptionKey: TranslationKey;
   status: ToolStatus;
   icon: LucideIcon;
 };
 
 export const tools: Tool[] = [
   {
-    name: "Image Compressor",
+    nameKey: "compressor",
     path: "/compress",
-    description: "Reduce image size locally with browser-native processing.",
+    descriptionKey: "compressorDesc",
     status: "available",
     icon: ImageDown,
   },
   {
-    name: "PDF to Image",
+    nameKey: "pdf",
     path: "/pdf-to-image",
-    description: "Export pages into sharp image files without uploading.",
-    status: "planned",
+    descriptionKey: "pdfDesc",
+    status: "available",
     icon: FileImage,
   },
   {
-    name: "Image Resize",
+    nameKey: "resize",
     path: "/image-resize",
-    description: "Resize assets for apps, stores, marketplaces, and social.",
-    status: "planned",
+    descriptionKey: "resizeDesc",
+    status: "available",
     icon: Maximize,
   },
   {
-    name: "Image Converter",
+    nameKey: "converter",
     path: "/image-converter",
-    description: "Convert between JPG, PNG, and WEBP formats.",
-    status: "planned",
+    descriptionKey: "converterDesc",
+    status: "available",
     icon: RefreshCcw,
   },
   {
-    name: "Image Crop",
+    nameKey: "crop",
     path: "/image-crop",
-    description: "Crop images for profiles, products, and publishing.",
-    status: "planned",
+    descriptionKey: "cropDesc",
+    status: "available",
     icon: Crop,
   },
   {
-    name: "Image Watermark",
+    nameKey: "watermark",
     path: "/image-watermark",
-    description: "Apply local text or brand marks before sharing.",
-    status: "planned",
+    descriptionKey: "watermarkDesc",
+    status: "available",
     icon: Stamp,
   },
 ];
