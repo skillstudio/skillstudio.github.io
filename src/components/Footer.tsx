@@ -11,7 +11,7 @@ export function Footer() {
         <div>
           <div className="flex items-center gap-3 text-white">
             <span className="flex size-9 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/20"><LockKeyhole className="size-4" /></span>
-            <span className="font-semibold tracking-tight">ImgSkills</span>
+            <span className="font-semibold tracking-tight">图像技能平台</span>
           </div>
           <p className="mt-4 max-w-sm text-sm leading-6">
             {zh ? "面向常用图像任务的浏览器端图像工作室，无需注册即可使用。" : "A browser-based image studio for common image tasks, available without registration."}
