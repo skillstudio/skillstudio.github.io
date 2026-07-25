@@ -6,7 +6,7 @@ export default function App() {
   const path = window.location.pathname.replace("/imgskills", "") || "/";
 
   return (
-    <div className="min-h-screen bg-stone-50 text-slate-950">
+    <div className="min-h-screen bg-slate-950 text-slate-950">
       <Header />
       <main>{path === "/compress" ? <CompressorPage /> : <HomePage />}</main>
     </div>

@@ -127,7 +127,7 @@ export function CompressorPage() {
   }
 
   return (
-    <section className="bg-stone-50 py-8 sm:py-12">
+    <section className="min-h-[calc(100vh-5rem)] bg-slate-900 py-8 sm:py-12">
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
         <aside className="space-y-4">
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
