@@ -12,6 +12,7 @@ const PdfToImagePage = lazy(() => import("./pages/PdfToImagePage").then((module)
 const ResizePage = lazy(() => import("./pages/ResizePage").then((module) => ({ default: module.ResizePage })));
 const WatermarkPage = lazy(() => import("./pages/WatermarkPage").then((module) => ({ default: module.WatermarkPage })));
 const CommerceStudioPage = lazy(() => import("./pages/CommerceStudioPage").then((module) => ({ default: module.CommerceStudioPage })));
+const SpreadsheetAgentPage = lazy(() => import("./pages/SpreadsheetAgentPage").then((module) => ({ default: module.SpreadsheetAgentPage })));
 
 const routes: Record<string, ComponentType> = {
   "/": HomePage,
@@ -22,6 +23,7 @@ const routes: Record<string, ComponentType> = {
   "/image-crop": CropPage,
   "/image-watermark": WatermarkPage,
   "/commerce-studio": CommerceStudioPage,
+  "/spreadsheet-agent": SpreadsheetAgentPage,
 };
 
 function NotFoundPage() {
@@ -43,7 +45,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-950">
       <Seo pathname={pathname} language={language} />
-      <Header wide={pathname === "/commerce-studio"} />
+      <Header wide={pathname === "/commerce-studio" || pathname === "/spreadsheet-agent"} />
       <main>
         <Suspense fallback={<div className="min-h-[calc(100vh-5rem)] bg-slate-900 px-4 py-10"><div className="mx-auto grid max-w-6xl animate-pulse gap-6 lg:grid-cols-[0.78fr_1.22fr]"><div className="h-[28rem] rounded-2xl border border-slate-700 bg-slate-800/70" /><div className="h-72 rounded-2xl border border-slate-700 bg-slate-800/50" /></div><p className="mx-auto mt-6 max-w-6xl text-center text-sm text-slate-400">{language === "zh" ? "正在准备本地处理引擎…" : "Preparing the local processing engine…"}</p></div>}>
           <Page />

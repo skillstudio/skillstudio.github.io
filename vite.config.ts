@@ -12,6 +12,7 @@ const toolRoutes = [
   "image-crop",
   "image-watermark",
   "commerce-studio",
+  "spreadsheet-agent",
 ];
 
 const routeSeo: Record<string, { title: string; description: string }> = {
@@ -42,6 +43,10 @@ const routeSeo: Record<string, { title: string; description: string }> = {
   "commerce-studio": {
     title: "电商图片批量处理工具｜多平台商品图制作 - ImgSkills",
     description: "批量处理商品原图，完成背景优化、主体构图、平台尺寸适配和结构化 ZIP 交付，覆盖常用国内及跨境电商平台。",
+  },
+  "spreadsheet-agent": {
+    title: "本地 AI 电商表格 Agent｜AliExpress 商品批量导入 - ImgSkills",
+    description: "在浏览器本地识别 Excel 与 CSV 商品字段，编辑商品、批量定价并生成 AliExpress 导入工作簿，文件无需上传。",
   },
 };
 

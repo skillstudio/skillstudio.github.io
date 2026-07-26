@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const routes = ["/compress", "/pdf-to-image", "/image-resize", "/image-converter", "/image-crop", "/image-watermark"];
+const routes = ["/compress", "/pdf-to-image", "/image-resize", "/image-converter", "/image-crop", "/image-watermark", "/spreadsheet-agent"];
 const directRoutes = routes.flatMap((route) => [route, `${route}/`]);
 
 test("home exposes every live tool", async ({ page }) => {

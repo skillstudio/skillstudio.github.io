@@ -6,6 +6,7 @@ import {
   RefreshCcw,
   Stamp,
   Store,
+  Sheet,
   type LucideIcon,
 } from "lucide-react";
 import type { TranslationKey } from "../i18n/translations";
@@ -21,6 +22,13 @@ export type Tool = {
 };
 
 export const tools: Tool[] = [
+  {
+    nameKey: "spreadsheetAgent",
+    path: "/spreadsheet-agent",
+    descriptionKey: "spreadsheetAgentDesc",
+    status: "available",
+    icon: Sheet,
+  },
   {
     nameKey: "commerceStudio",
     path: "/commerce-studio",

@@ -24,6 +24,7 @@ export const translations = {
     crop: "Image Crop", cropDesc: "Crop, rotate, and frame an image precisely.",
     watermark: "Image Watermark", watermarkDesc: "Apply text, logos, or tiled protection marks.",
     commerceStudio: "Commerce Studio", commerceStudioDesc: "Turn product photos into complete marketplace-ready image packs.",
+    spreadsheetAgent: "Commerce Spreadsheet Agent", spreadsheetAgentDesc: "Normalize supplier sheets, edit products, price, and export for AliExpress.",
   },
   zh: {
     navTools: "工具", navCompress: "压缩", mobileAccess: "手机访问",
@@ -48,6 +49,7 @@ export const translations = {
     crop: "图片裁剪", cropDesc: "精确裁剪、旋转和构图。",
     watermark: "图片水印", watermarkDesc: "添加文字、Logo 或平铺防护水印。",
     commerceStudio: "电商图片工作室", commerceStudioDesc: "将商品实拍批量制作为可直接上架的完整图片包。",
+    spreadsheetAgent: "电商商品表格 Agent", spreadsheetAgentDesc: "统一供应商表格、编辑商品、批量定价并导出 AliExpress 文件。",
   },
 } as const;
 

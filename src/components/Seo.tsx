@@ -27,6 +27,16 @@ const seoByPath: Record<string, SeoEntry> = {
       description: "Prepare product photos for common domestic and cross-border marketplaces with background, framing, sizing, and structured ZIP delivery.",
     },
   },
+  "/spreadsheet-agent": {
+    zh: {
+      title: "本地 AI 电商表格 Agent｜AliExpress 商品批量导入 - ImgSkills",
+      description: "在浏览器本地识别 Excel 与 CSV 商品字段，编辑商品、批量定价并生成 AliExpress 导入工作簿，文件无需上传。",
+    },
+    en: {
+      title: "Local AI Commerce Spreadsheet Agent for AliExpress - ImgSkills",
+      description: "Normalize Excel and CSV supplier data, edit products, calculate pricing, and create AliExpress import workbooks locally in your browser.",
+    },
+  },
   "/compress": {
     zh: {
       title: "在线图片压缩工具｜JPG、PNG、WEBP 批量压缩 - ImgSkills",
