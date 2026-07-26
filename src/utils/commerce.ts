@@ -123,12 +123,16 @@ export async function analyzePhoto(photo: ProductPhoto, signal?: AbortSignal): P
 }
 
 let backgroundPipeline: ((input: string) => Promise<unknown>) | null = null;
+const transformersRuntimeUrl = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js";
 type DetectionBox = { xmin: number; ymin: number; xmax: number; ymax: number };
 type ProductDetection = { score: number; label: string; box: DetectionBox };
 
 async function getBackgroundPipeline(onProgress?: (progress: number) => void) {
   if (backgroundPipeline) return backgroundPipeline;
-  const transformers = await import("@huggingface/transformers");
+  const transformers = await import(
+    /* @vite-ignore */
+    transformersRuntimeUrl
+  ) as typeof import("@huggingface/transformers");
   if (transformers.env.backends.onnx?.wasm) {
     transformers.env.backends.onnx.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/";
   }
@@ -136,7 +140,8 @@ async function getBackgroundPipeline(onProgress?: (progress: number) => void) {
   backgroundPipeline = await transformers.pipeline("background-removal", "onnx-community/MVANet-ONNX", {
     device,
     dtype: "q4",
-    progress_callback: (event) => {
+    progress_callback: (event: unknown) => {
+      if (!event || typeof event !== "object") return;
       if ("progress" in event && typeof event.progress === "number") onProgress?.(Math.round(event.progress));
     },
   }) as unknown as (input: string) => Promise<unknown>;
